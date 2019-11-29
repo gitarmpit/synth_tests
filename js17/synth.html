@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="synth.css">
+  <script src="synth.js"></script>
+</head>
+<body>
+	<div id="graph">
+		<canvas id="grid"></canvas>
+		<canvas id="plot"></canvas>
+	</div>
+	<div class="allcontrols">
+	
+		<div class="slider" id="sh0">
+			<div class="slidetitle">A</div>
+			<div class="scrollbar">
+				<div id="sbutton0" class="slidebutton"></div>
+			</div>
+			<div class="value" id="sw0">0</div>
+		</div>
+		
+		<div class="slider" id="sh1">
+			<div class="slidetitle">H1</div>
+			<div class="scrollbar">
+				<div id="sbutton1" class="slidebutton"></div>
+			</div>
+			<div class="value" id="sw1">0</div>
+			<button type="button" onClick="set_sin(this,1);">sin</button>
+			<button type="button" onClick="set_pol(this,1);">+</button>
+		</div>
+		
+		<div class="slider" id="sh2">
+			<div class="slidetitle">H2</div>
+			<div class="scrollbar">
+				<div id="sbutton2" class="slidebutton"></div>
+			</div>
+			<div class="value" id="sw2">0</div>
+			<button type="button" onClick="set_sin(this,2);">sin</button>
+			<button type="button" onClick="set_pol(this,2);">+</button>
+		</div>
+		
+		<div class="slider" id="sh3">
+			<div class="slidetitle">H3</div>
+			<div class="scrollbar">
+				<div id="sbutton3" class="slidebutton"></div>
+			</div>
+			<div class="value" id="sw3">0</div>
+			<button type="button" onClick="set_sin(this,3);">sin</button>
+			<button type="button" onClick="set_pol(this,3);">+</button>
+		</div>
+		
+		<div class="slider" id="sh4">
+			<div class="slidetitle">H4</div>
+			<div class="scrollbar">
+				<div id="sbutton4" class="slidebutton"></div>
+			</div>
+			<div class="value" id="sw4">0</div>
+			<button type="button" onClick="set_sin(this,4);">sin</button>
+			<button type="button" onClick="set_pol(this,4);">+</button>
+		</div>
+		
+		<div class="slider" id="sh5">
+			<div class="slidetitle">H5</div>
+			<div class="scrollbar">
+				<div id="sbutton5" class="slidebutton"></div>
+			</div>
+			<div class="value" id="sw5">0</div>
+			<button type="button" onClick="set_sin(this,5);">sin</button>
+			<button type="button" onClick="set_pol(this,5);">+</button>
+		</div>
+		
+		<div class="slider" id="sh6">
+			<div class="slidetitle">H6</div>
+			<div class="scrollbar">
+				<div id="sbutton6" class="slidebutton"></div>
+			</div>
+			<div class="value" id="sw6">0</div>
+			<button type="button" onClick="set_sin(this,6);">sin</button>
+			<button type="button" onClick="set_pol(this,6);">+</button>
+		</div>
+		
+		<div class="slider" id="sh7">
+			<div class="slidetitle">H7</div>
+			<div class="scrollbar">
+				<div id="sbutton7" class="slidebutton"></div>
+			</div>
+			<div class="value" id="sw7">0</div>
+			<button type="button" onClick="set_sin(this,7);">sin</button>
+			<button type="button" onClick="set_pol(this,7);">+</button>
+		</div>
+		
+		<div class="slider" id="sh8">
+			<div class="slidetitle">H8</div>
+			<div class="scrollbar">
+				<div id="sbutton8" class="slidebutton"></div>
+			</div>
+			<div class="value" id="sw8">0</div>
+			<button type="button" onClick="set_sin(this,8);">sin</button>
+			<button type="button" onClick="set_pol(this,8);">+</button>
+		</div>
+		
+		<div class="slider" id="sh9">
+			<div class="slidetitle">H9</div>
+			<div class="scrollbar">
+				<div id="sbutton9" class="slidebutton"></div>
+			</div>
+			<div class="value" id="sw9">0</div>
+			<button type="button" onClick="set_sin(this,9);">sin</button>
+			<button type="button" onClick="set_pol(this,9);">+</button>
+		</div>
+		
+		<div class="slider" id="sh10">
+			<div class="slidetitle">H10</div>
+			<div class="scrollbar">
+				<div id="sbutton10" class="slidebutton"></div>
+			</div>
+			<div class="value" id="sw10">0</div>
+			<button type="button" onClick="set_sin(this,10);">sin</button>
+			<button type="button" onClick="set_pol(this,10);">+</button>
+		</div>
+		
+		<div class="slider" id="sh11">
+			<div class="slidetitle">H11</div>
+			<div class="scrollbar">
+				<div id="sbutton11" class="slidebutton"></div>
+			</div>
+			<div class="value" id="sw11">0</div>
+			<button type="button" onClick="set_sin(this,11);">sin</button>
+			<button type="button" onClick="set_pol(this,11);">+</button>
+		</div>
+		
+	</div>
+	
+	<div id="webapi">
+		<h3>Sound</h3>
+		<h4>Frequency (Hz)</h4>
+		<button>&nbsp;-&nbsp;</button>
+		<input type="text" class="value" id="freqval" value="0">
+		<button>&nbsp;+&nbsp;</button>
+		<h4>Volume</h4>
+		<button>&nbsp;-&nbsp;</button>
+		<div id="amplval">
+			<div id="amplvalnum">off</div>
+			<div id="amplvalbar"></div>
+		</div>
+		<button>&nbsp;+&nbsp;</button>
+	</div>
+</body>
+</html>
