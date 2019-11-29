@@ -1,6 +1,6 @@
 .settings/
-.exe
-.o
-.obj
+*.exe
+*.o
+*.obj
 
 
