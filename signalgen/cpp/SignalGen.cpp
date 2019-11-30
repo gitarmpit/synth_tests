@@ -102,7 +102,7 @@ bool SignalGen::Generate(int freq, const std::vector<float>& harmAmps, const std
     for (size_t nharm = 0; nharm < harmAmps.size(); ++nharm)
     {
         int f = freq * (nharm + 1);
-        if (f < _sps / 2 && f < 20000)
+        if (f < _sps / 2 && f < 20000 && harmAmps[nharm] > 0.0001)
         {
             float phase = phases[nharm];
             if (!GenerateOne(f, harmAmps[nharm], phase))
@@ -124,7 +124,7 @@ bool SignalGen::GenerateOne(int freq, float amp, float& phase)
     if (amp < 0)
     {
         amp = -amp;
-        phase = -(float)table_size / 4; // -90 degrees
+        phase = -M_PI/2; // -90 degrees
     }
 
     if (phase < 0) 
@@ -133,7 +133,9 @@ bool SignalGen::GenerateOne(int freq, float amp, float& phase)
     }
 
     fprintf (stderr, "freq: %d, amp: %f, phase (deg): %f\n", freq, amp, phase*180/M_PI);
-
+    phase = table_size / (2*M_PI) * phase;
+    fprintf (stderr, "idx: %f\n", phase);
+    
     float phase_step = (float)freq / (float)_sps * (float)table_size;
     if ((int)phase_step > table_size / 2)
     {

@@ -122,7 +122,7 @@ int main(void)
 
    _fptr = triangle;
    //printf ("c: %f\n", c);
-   const int sz = 10;
+   const int sz = 60;
    float a[sz], b[sz];
    for (_n = 1; _n <= sz; ++_n) 
    {
