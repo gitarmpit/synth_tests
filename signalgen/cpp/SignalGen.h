@@ -7,17 +7,21 @@
 class SignalGen
 {
 private:
+    int _sps;
     const int maxHarmonics = 100;
     const int table_size = 1024;
     float* _table = new float[table_size];
     float* _out;
     int _npoints;
+    bool GenerateOne(int freq, float amp, float& phase);
 
-    bool GenerateFreq(int freq, float amp, int sps);
+    void init (float duration_sec);
+
 
 public:
-    SignalGen();
-    bool Generate(int freq, const std::vector<float>& harmAmps, int sps, float duration_sec);
+    SignalGen(int sps);
+    bool Generate(int freq, const std::vector<float>& harmAmps, const std::vector<float>& phases, float duration_sec);
+    bool GenerateOne(int freq, float amp, float& phase, float duration_sec);
     void Get(int& count, float*& out) const { count = _npoints; out = _out; }
     ~SignalGen();
 };

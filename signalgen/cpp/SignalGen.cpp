@@ -48,10 +48,11 @@ static float square2 (float x)
    }
 }
 
-SignalGen::SignalGen()
+SignalGen::SignalGen(int sps)
 {
     _out = 0;
     _npoints = 0;
+    _sps = sps;
     for (int i = 0; i < table_size; ++i)
     {
         _table[i] = (float)cos(2.0f * M_PI / (float)table_size * (float)i);
@@ -63,9 +64,9 @@ SignalGen::~SignalGen()
     delete[] _out;
 }
 
-bool SignalGen::Generate(int freq, const std::vector<float>& harmAmps, int sps, float duration_sec)
+void SignalGen::init (float duration_sec)
 {
-    _npoints = (int)(sps * duration_sec);
+    _npoints = (int)(_sps * duration_sec);
     if (_out)
     {
         delete[] _out;
@@ -75,19 +76,36 @@ bool SignalGen::Generate(int freq, const std::vector<float>& harmAmps, int sps, 
     {
         _out[i] = 0;
     }
+}
 
+bool SignalGen::GenerateOne(int freq, float amp, float& phase, float duration_sec)
+{
+    init(duration_sec);
+    return GenerateOne(freq, amp, phase);
+}
+
+bool SignalGen::Generate(int freq, const std::vector<float>& harmAmps, const std::vector<float>& phases, float duration_sec)
+{
+    init(duration_sec);
     if (harmAmps.size() > maxHarmonics)
     {
         fprintf(stderr, "Too many harmonics. Max=%d\n", maxHarmonics);
+        return false;  
     }
 
+    if (harmAmps.size() != phases.size()) 
+    {
+       fprintf (stderr, "harmonics and phase arrays must be the same size");
+       return false;
+    }
 
     for (size_t nharm = 0; nharm < harmAmps.size(); ++nharm)
     {
         int f = freq * (nharm + 1);
-        if (f < sps / 2 && f < 20000)
+        if (f < _sps / 2 && f < 20000)
         {
-            if (!GenerateFreq(f, harmAmps[nharm], sps))
+            float phase = phases[nharm];
+            if (!GenerateOne(f, harmAmps[nharm], phase))
             {
                 return false;
             }
@@ -101,20 +119,22 @@ bool SignalGen::Generate(int freq, const std::vector<float>& harmAmps, int sps, 
     return true;
 }
 
-bool SignalGen::GenerateFreq(int freq, float amp, int sps)
+bool SignalGen::GenerateOne(int freq, float amp, float& phase)
 {
-    float phase = 0.0f;
-    bool sin = true;
     if (amp < 0)
     {
-        sin = false;
         amp = -amp;
-        phase = (float)table_size / (float)4; // 90 degrees
+        phase = -(float)table_size / 4; // -90 degrees
     }
 
-    fprintf (stderr, "freq: %d, sin: %d, amp: %f\n", freq, sin, amp);
+    if (phase < 0) 
+    {
+       phase = 2*M_PI + phase;
+    }
 
-    float phase_step = (float)freq / (float)sps * (float)table_size;
+    fprintf (stderr, "freq: %d, amp: %f, phase (deg): %f\n", freq, amp, phase*180/M_PI);
+
+    float phase_step = (float)freq / (float)_sps * (float)table_size;
     if ((int)phase_step > table_size / 2)
     {
         fprintf(stderr, "error: phase_step too high: %f\n", phase_step);
@@ -126,8 +146,7 @@ bool SignalGen::GenerateFreq(int freq, float amp, int sps)
     {
         int idx0 = (int)phase;
 
-        float v0 = _table[idx0]; //getPoint(idx0, sin); 
-        //float v0 = getPoint(idx0, sin); 
+        float v0 = _table[idx0]; 
         if (i < _npoints - 1)
         {
             int idx1 = idx0 + 1;
@@ -135,8 +154,7 @@ bool SignalGen::GenerateFreq(int freq, float amp, int sps)
             {
                 idx1 = 0;
             }
-            float v1 = _table[idx1]; //getPoint(idx1, sin); 
-            // float v1 = getPoint(idx1, sin); 
+            float v1 = _table[idx1];  
             float frac = phase - (float)idx0;
             val = v0 + (v1 - v0) * frac;
         }

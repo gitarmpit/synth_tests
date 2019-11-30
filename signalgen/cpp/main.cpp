@@ -1,9 +1,11 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <math.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <memory.h>
+#include <stdlib.h>
 #include "SignalGen.h"
 #include "wav.h"
 
@@ -79,18 +81,20 @@ void wavfile_close( FILE *file )
 
 int main(int argc, char**argv) 
 {
-    if (argc != 5)
+    if (argc != 6)
     {
-        fprintf(stderr, "args: <sps> <freq> <sec> <file with harms>");
+        fprintf(stderr, "args: <sps> <freq> <sec> <amp> <file with harms>");
         exit(1);
     }
 
     int sps = atoi(argv[1]);
     int freq = atoi(argv[2]);
     float sec = atof(argv[3]);
-    char* sharms = _strdup(argv[4]);
+    float amp = atof(argv[4]);
 
-    printf("sps: %d, freq: %d, sec: %f\n", sps, freq, sec);
+    char* fharms = _strdup(argv[5]);
+
+    fprintf(stderr, "sps: %d, freq: %d, amp: %f, sec: %f\n", sps, freq, amp, sec);
 
     if (sps < 1000 || sps >44100)
     {
@@ -110,36 +114,64 @@ int main(int argc, char**argv)
         exit(1);
     }
 
-
-    std::vector<float> harms; 
-
-    char* token = strtok(sharms, ",");
-    while (token != NULL) 
+    char buf[256];
+    FILE* fp = fopen(fharms, "r");
+    if (fp == NULL)
     {
-        fprintf(stderr, " %s\n", token); //printing each token
-        float amp = atof(token);
-        if (abs(amp) > 10000)
-        {
-            fprintf(stderr, "amp range must be 0.001 to 10000\n");
-            exit(1);
-        }
-        harms.push_back(amp);
-        token = strtok(NULL, ",");
-        if (token == NULL)
-        {
-            break;
-        }
-    }
-    free(sharms);
-
-    if (harms.size() == 0)
-    {
-        fprintf(stderr, "no harms\n");
+        perror (fharms);
         exit(1);
     }
+
+    std::vector<float> harms; 
+    std::vector<float> phases; 
+    float h;
+    while (fgets(buf, sizeof buf, fp))  
+    {       
+    	char* token = strtok(buf, ",");
+        float phase = 0.0f;
+    	if (token != NULL) 
+    	{
+           h = atof(token);
+           token = strtok(NULL, ",");
+           if (token != NULL)
+           {
+              phase = atof(token);
+           }
+        }
+        else 
+        {
+           h = atof(buf);
+        }
+
+        fprintf (stderr, "hamp: %f, phase: %f\n", h, phase);
+        if (h < 0.0001 && h > 10000) 
+        {
+           fprintf(stderr, "amp range must be 0.0001 to 10000\n");
+           exit(1);
+        }
+        if (abs(phase) > 180) 
+        {
+           fprintf (stderr, "phases must be within -= 180 degrees\n");
+           exit(1);
+        }
+   
+        harms.push_back(h*amp);
+        phases.push_back(phase*M_PI/180);
+    }
  
-    SignalGen signalGen; 
-    signalGen.Generate(freq, harms, sps, sec);
+    fclose(fp);
+    if (harms.size() == 0)
+    {
+        fprintf(stderr, "no harms, using single freq: %d\n", freq);
+        harms.push_back (1.);
+        phases.push_back(0.);
+    }
+ 
+    SignalGen signalGen(sps); 
+    if (!signalGen.Generate(freq, harms, phases, sec)) 
+    {
+        exit(1);
+    }
     float* res;
     int size = 0;
     signalGen.Get(size, res);
@@ -151,7 +183,6 @@ int main(int argc, char**argv)
         wav[i] =  (short)res[i];
         printf("%d, %f\n", i, res[i]);
     }
-
 
     int bps = 16;
     FILE* f = wavfile_open("t.wav", sps, bps);

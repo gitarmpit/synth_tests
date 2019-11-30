@@ -121,14 +121,15 @@ int main(void)
    float c = calc_midpoint_rule (-_T/2, _T/2, 10000, triangle);
 
    _fptr = triangle;
-   printf ("c: %f\n", c);
-   float a[30], b[30];
-   for (_n = 1; _n <= 30; ++_n) 
+   //printf ("c: %f\n", c);
+   const int sz = 10;
+   float a[sz], b[sz];
+   for (_n = 1; _n <= sz; ++_n) 
    {
       a[_n] = 2/_T * calc_midpoint_rule (-_T/2, _T/2, 10000, afunc);
       b[_n] = 2/_T * calc_midpoint_rule (-_T/2, _T/2, 10000, bfunc);
       //printf ("n: %d, a: %f, b: %f\n", _n, a[_n], b[_n]);
-      printf ("%f,", a[_n]);
+      printf ("%f\n", a[_n]);
    }
 
 
