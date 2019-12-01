@@ -81,9 +81,9 @@ void wavfile_close( FILE *file )
 
 int main(int argc, char**argv) 
 {
-    if (argc != 6)
+    if (argc < 5)
     {
-        fprintf(stderr, "args: <sps> <freq> <sec> <amp> <file with harms>");
+        fprintf(stderr, "args: <sps> <freq> <sec> <amp> [ <file with harms> ]");
         exit(1);
     }
 
@@ -92,7 +92,12 @@ int main(int argc, char**argv)
     float sec = atof(argv[3]);
     float amp = atof(argv[4]);
 
-    char* fharms = _strdup(argv[5]);
+    char* fharms = NULL;
+   
+    if (argc == 6) 
+    {
+       char* fharms = _strdup(argv[5]);
+    }
 
     fprintf(stderr, "sps: %d, freq: %d, amp: %f, sec: %f\n", sps, freq, amp, sec);
 
@@ -114,16 +119,20 @@ int main(int argc, char**argv)
         exit(1);
     }
 
+    std::vector<float> harms; 
+    std::vector<float> phases; 
+
+    if (fharms != NULL) 
+    {
     char buf[256];
-    FILE* fp = fopen(fharms, "r");
+    	FILE* fp = fopen(fharms, "r");
     if (fp == NULL)
     {
         perror (fharms);
         exit(1);
     }
 
-    std::vector<float> harms; 
-    std::vector<float> phases; 
+    
     float h;
     while (fgets(buf, sizeof buf, fp))  
     {       
@@ -160,6 +169,7 @@ int main(int argc, char**argv)
     }
  
     fclose(fp);
+
     if (harms.size() == 0)
     {
         fprintf(stderr, "no harms, using single freq: %d\n", freq);

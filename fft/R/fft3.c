@@ -1,19 +1,10 @@
-#include "fft.h"
 
 #include <limits.h> /* for INT_MAX */
 #include <stddef.h> /* for size_t */
 #include <stdlib.h> /* for abs */
 #include <math.h>
-//#include <Rmath.h> /* for imax2(.),..*/
-//#include <R_ext/Applic.h>
-
-#define imax2(x, y) ((x < y) ? y : x)
-#define imin2(x, y) ((x < y) ? x : y);
-
-#ifndef M_SQRT_3
-#define M_SQRT_3	1.732050807568877293527446341506	/* sqrt(3) */
-#endif
-
+#include <stdio.h>
+#include "fft.h"
 
 /*  Fast Fourier Transform
  *
@@ -22,7 +13,8 @@
  *
  *  I have translated them to C and moved the memory allocation
  *  so that it takes place under the control of the algorithm
- *  which calls these; for R, see ../main/fourier.c
+ *  which calls these; for R, see ./fourier.c
+                                  ~~~~~~~~~~~
  *
  *  void fft_factor(int n, int *maxf, int *maxp)
  *
@@ -115,6 +107,11 @@ static void fftmx(double *a, double *b, int ntot, int n, int nspan, int isn,
 {
 /* called from	fft_work() */
 
+/* Design BUG:	One purpose of fft_factor() would be to compute
+ * ----------	nfac[] once and for all; and fft_work() [i.e. fftmx ]
+ *		could reuse the factorization.
+ * However: nfac[] is `destroyed' currently in the code below
+ */
     double aa, aj, ajm, ajp, ak, akm, akp;
     double bb, bj, bjm, bjp, bk, bkm, bkp;
     double c1, c2=0, c3=0, c72, cd;
@@ -124,9 +121,9 @@ static void fftmx(double *a, double *b, int ntot, int n, int nspan, int isn,
     int k, k1, k2, k3=0, k4, kk, klim, ks, kspan, kspnn;
     int lim, maxf, mm, nn, nt;
 
-    a--; b--; at--; ck--; bt--; sk--;
-    np--;
-    nfac--;/*the global one!*/
+    // converted from Fortran, so 1-based indexing
+    a--; b--; at--; ck--; bt--; sk--; np--;
+    // nfac has had indexing converted to avoid compiler warnings
 
     inc = abs(isn);
     nt = inc*ntot;
@@ -144,7 +141,7 @@ static void fftmx(double *a, double *b, int ntot, int n, int nspan, int isn,
 #ifdef SCALING
 	/* scale by 1/n for isn > 0 */
 	ak = 1.0/n;
-	for(j=1 ; j<=nt ; j+=inc) {
+	for(j = 1 ; j <= nt ; j += inc) {
 	    a[j] *= ak;
 	    b[j] *= ak;
 	}
@@ -161,8 +158,8 @@ static void fftmx(double *a, double *b, int ntot, int n, int nspan, int isn,
     klim = lim*jc;
     i = 0;
     jf = 0;
-    maxf = nfac[m - kt];
-    if(kt > 0) maxf = imax2(nfac[kt],maxf);
+    maxf = nfac[m - kt - 1];
+    if(kt > 0) maxf = imax2(nfac[kt-1], maxf);
 
 	/* compute fourier transform */
 
@@ -173,7 +170,7 @@ L_start:
     sd = sin(dr*rad);
     kk = 1;
     i++;
-    if( nfac[i] != 2) goto L110;
+    if( nfac[i-1] != 2) goto L110;
 
 /* transform for factor of 2 (including rotation factor) */
 
@@ -272,7 +269,7 @@ L100:
 /* transform for factor of 4 */
 
 L110:
-    if( nfac[i] != 4) goto L_f_odd;
+    if( nfac[i-1] != 4) goto L_f_odd;
     kspnn = kspan;
     kspan /= 4;
 L120:
@@ -409,7 +406,7 @@ L220:
 /* transform for odd factors */
 
 L_f_odd:
-    k = nfac[i];
+    k = nfac[i-1];
     kspnn = kspan;
     kspan /= k;
     if(k == 3) goto L100;
@@ -465,7 +462,7 @@ L270:
     aj = 0.0;
     bj = 0.0;
     k = 1;
-    for(k=2; k < jf; k++) {
+    for(k = 2; k < jf; k++) {
 	ak += at[k]*ck[jj];
 	bk += bt[k]*ck[jj];
 	k++;
@@ -549,8 +546,8 @@ L_fin:
     if( m < k) k--;
     np[k+1] = jc;
     for(j = 1; j < k; j++, k--) {
-	np[j+1] = np[j]/nfac[j];
-	np[k] = np[k+1]*nfac[j];
+	np[j+1] = np[j]/nfac[j-1];
+	np[k] = np[k+1]*nfac[j-1];
     }
     k3 = np[k+1];
     kspan = np[2];
@@ -619,11 +616,11 @@ L440:
 
     /* Here, nfac[] is overwritten... -- now CUMULATIVE ("cumprod") factors */
     nn = m - kt;
-    nfac[nn+1] = 1;
+    nfac[nn] = 1;
     for(j = nn; j > kt; j--)
-	nfac[j] *= nfac[j+1];
+	nfac[j-1] *= nfac[j];
     kt++;
-    nn = nfac[kt] - 1;
+    nn = nfac[kt-1] - 1;
     jj = 0;
     j = 0;
     goto L480;
@@ -631,15 +628,15 @@ L460:
     jj -= k2;
     k2 = kk;
     k++;
-    kk = nfac[k];
+    kk = nfac[k-1];
 L470:
     jj += kk;
     if( jj >= k2) goto L460;
     np[j] = jj;
 L480:
-    k2 = nfac[kt];
+    k2 = nfac[kt-1];
     k = kt + 1;
-    kk = nfac[k];
+    kk = nfac[k-1];
     j++;
     if( j <= nn) goto L470;
 
@@ -671,7 +668,7 @@ L520:
     k = np[j];
     kk = jc*k + i + jj;
 
-    for(k1= kk + kspan, k2= 1; k1 != kk;
+    for(k1 = kk + kspan, k2 = 1; k1 != kk;
 	k1 -= inc, k2++) {
 	at[k2] = a[k1];
 	bt[k2] = b[k1];
@@ -690,7 +687,7 @@ L520:
 	kk = k2;
     } while(k != j);
 
-    for(k1= kk + kspan, k2= 1; k1 > kk;
+    for(k1 = kk + kspan, k2 = 1; k1 > kk;
 	k1 -= inc, k2++) {
 	a[k1] = at[k2];
 	b[k1] = bt[k2];
@@ -714,11 +711,12 @@ static int kt;
 static int maxf;
 static int maxp;
 
-/* At the end of factorization,	 
+/* At the end of factorization,
  *	nfac[]	contains the factors,
- *	m_fac	contains the number of factors and 
+ *	m_fac	contains the number of factors and
  *	kt	contains the number of square factors  */
-// n: input array length
+
+/* non-API, but used by package RandomFields */
 BOOL fft_factor(int n, int *pmaxf, int *pmaxp)
 {
 /* fft_factor - factorization check and determination of memory
@@ -730,36 +728,30 @@ BOOL fft_factor(int n, int *pmaxf, int *pmaxp)
  * If *pmaxf == 0, there was an error, the error type is indicated by *pmaxp:
  *
  *  If *pmaxp == 0  There was an illegal zero parameter among nseg, n, and nspn.
- *  If *pmaxp == 1  There we more than 15 factors to ntot.  */
+ *  If *pmaxp == 1  There were more than 20 factors to ntot.  */
 
     int j, jj, k, sqrtk, kchanged;
 
-    /* check series length */
+	/* check series length */
+
     if (n <= 0) {
-	old_n = 0; 
-        *pmaxf = 0; 
-        *pmaxp = 0;
+	old_n = 0; *pmaxf = 0; *pmaxp = 0;
 	return FALSE;
     }
-    else
-    { 
-        old_n = n;
-    }
+    else old_n = n;
 
-    /* determine the factors of n */
+	/* determine the factors of n */
+
     m_fac = 0;
     k = n;/* k := remaining unfactored factor of n */
     if (k == 1)
-    {
-      return FALSE;
-    } 
+	return TRUE;
 
-    /* extract square factors first ------------------ */
+	/* extract square factors first ------------------ */
 
     /* extract 4^2 = 16 separately
      * ==> at most one remaining factor 2^2 = 4, done below */
-    while(k % 16 == 0) 
-    {
+    while(k % 16 == 0) {
 	nfac[m_fac++] = 4;
 	k /= 16;
     }
@@ -780,14 +772,12 @@ BOOL fft_factor(int n, int *pmaxf, int *pmaxp)
 	}
     }
 
-    if(k <= 4) 
-    {
+    if(k <= 4) {
 	kt = m_fac;
 	nfac[m_fac] = k;
 	if(k != 1) m_fac++;
     }
-    else 
-    {
+    else {
 	if(k % 4 == 0) {
 	    nfac[m_fac++] = 2;
 	    k /= 4;
@@ -812,71 +802,128 @@ BOOL fft_factor(int n, int *pmaxf, int *pmaxp)
 
     if (m_fac <= kt+1)
 	maxp = m_fac+kt+1;
-
-    if (m_fac+kt > 20) 
-    {		
-        /* error - too many factors */
-	old_n = 0; 
-        *pmaxf = 0; 
-        *pmaxp = 0;
+    if (m_fac+kt > 20) {		/* error - too many factors */
+	old_n = 0; *pmaxf = 0; *pmaxp = 0;
 	return FALSE;
     }
-    else 
-    {
-	if (kt != 0) 
-        {
+    else {
+	if (kt != 0) {
 	    j = kt;
 	    while(j != 0)
-	    {
-	       nfac[m_fac++] = nfac[--j];
-            }
+		nfac[m_fac++] = nfac[--j];
 	}
 	maxf = nfac[m_fac-kt-1];
-
-        /* The last squared factor is not necessarily the largest PR#1429 */
+/* The last squared factor is not necessarily the largest PR#1429 */
 	if (kt > 0) maxf = imax2(nfac[kt-1], maxf);
 	if (kt > 1) maxf = imax2(nfac[kt-2], maxf);
 	if (kt > 2) maxf = imax2(nfac[kt-3], maxf);
-        printf ("series length: %d, n of factors=%d, n of square factors, n, kt=%d\n", n, m_fac, kt);
     }
     *pmaxf = maxf;
     *pmaxp = maxp;
-    for (int i = 0; i < m_fac; ++i) 
-    {
-      printf ("%d ", nfac[i]);
-    }
-    printf ("\n");
     return TRUE;
 }
-
 
 BOOL fft_work(double *a, double *b, int nseg, int n, int nspn, int isn,
 		  double *work, int *iwork)
 {
-    int nf, nspan, ntot;
-
     /* check that factorization was successful */
+    FILE* f = fopen ("fft_work", "w"); 
 
+    fprintf (f, "a: %p, b: %p\n", a, b);
+    fprintf (f, "input:\n");
+    for (int i = 0; i < n; ++i) 
+    {
+       fprintf (f, "i: %d, a: %.18g, b: %.18g\n", i, a[i], b[i]);
+    }
+	
     if(old_n == 0) return FALSE;
 
-    /* check that the parameters match those of the factorization call */
+	/* check that the parameters match those of the factorization call */
 
     if(n != old_n || nseg <= 0 || nspn <= 0 || isn == 0)
 	return FALSE;
 
     /* perform the transform */
 
-    nf = n;
-    nspan = nf * nspn;
-    ntot = nspan * nseg;
+    size_t mf = maxf;
+    int nspan = n * nspn, ntot = nspan * nseg;
+    fprintf (f, "nseg: %d, n: %d, nspn: %d, isn: %d, m_fac: %d, kt: %d, ntot: %d\n", 
+             nseg, n, nspn, isn, m_fac, kt, ntot);
 
-    fftmx(a, b, ntot, nf, nspan, isn, m_fac, kt,
-	  &work[0], &work[maxf], &work[2*(size_t)maxf], &work[3*(size_t)maxf],
+    fftmx(a, b, ntot, n, nspan, isn, m_fac, kt,
+	  work, work+mf, work+2*mf, work+3*mf,
 	  iwork, nfac);
 
-    for (int i = 0; i < n) 
+    fprintf (f, "output:\n");
+    for (int i = 0; i < n; ++i) 
     {
-       fprintf (stderr, "i: %d, a: %f, b: %f\n", i, a[i], b[i]);
+       fprintf (f, "i: %d, a: %.18g, b: %.18g\n", i, a[i], b[i]);
     }
+
+    fclose(f);
+
     return TRUE;
+}
+
+BOOL fft (double *re, int len, double* amps, double* phases)
+{
+   int maxf, maxp;   
+   if (!fft_factor(len, &maxf, &maxp))
+   {    
+     return FALSE; 
+   }  
+
+   int inv = -1;
+   double* work = (double*)malloc(4 * maxf * sizeof(double));
+   int*   iwork = (int*)malloc(maxp * sizeof(int));
+   double* im = (double*)calloc (len, sizeof (double));
+   BOOL rc = fft_work(re, im, 1, len, 1, inv, work, iwork); 
+   if (rc) 
+   {
+      for (int i = 0; i < len; ++i)
+      {
+       	amps[i] = sqrt(re[i]*re[i] + im[i]*im[i]);
+       	phases[i] = atan2(im[i], re[i]);
+      }
+   }
+   free (im); 
+   free (work);
+   free (iwork);
+   return rc;
+}
+
+// Real Input, complex output
+BOOL fft_complex (double *re, int len, double* amps, double* phases)
+{
+   FILE* f = fopen ("fft_complex", "w"); 
+   int maxf, maxp;   
+   if (!fft_factor(len, &maxf, &maxp))
+   {
+     return FALSE;
+   }
+
+   int inv = -2;
+
+   double* work = (double*)malloc(4 * maxf * sizeof(double));
+   int*   iwork = (int*)malloc(maxp * sizeof(int));
+   BOOL rc = fft_work(re, &re[1], 1, len, 1, inv, work, iwork);
+   if (rc) 
+   {
+      fprintf (f, "fft_complex, result:\n");
+      for (int i = 0; i < len*2; i += 2) 
+      {
+        fprintf (f, "%d: %.8g i%.8g\n", i, re[i], re[i+1]);
+      }
+ 
+      for (int i = 0; i < len; i += 2)
+      {
+       	amps[i/2] = sqrt(re[i]*re[i] + re[i+1]*re[i+1]);
+       	phases[i/2] = atan2(re[i+1], re[i]);
+        fprintf (f, "%d: a=%.8g, p=%.8g\n", i/2, amps[i/2], phases[i/2]);
+      }
+   }
+   free (work);
+   free (iwork);
+   fclose(f);
+   return rc;
 }
