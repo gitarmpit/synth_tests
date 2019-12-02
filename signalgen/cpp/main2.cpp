@@ -10,20 +10,21 @@
 
 int main(int argc, char**argv) 
 {
-    if (argc != 5)
+    if (argc != 6)
     {
-        fprintf(stderr, "args: <freq> <amp> <phase> <dur sec>");
+        fprintf(stderr, "args: <sps> <freq> <amp> <phase> <dur sec>");
         exit(1);
     }
 
-    int freq = atoi(argv[1]);
-    float amp = atof(argv[2]);
-    float phase = atof(argv[3]);
-    float sec = atof(argv[4]);
+    float sps = atof(argv[1]);
+    int freq = atoi(argv[2]);
+    float amp = atof(argv[3]);
+    float phase = atof(argv[4]);
+    float sec = atof(argv[5]);
 
     phase = phase*M_PI/180;
     
-    SignalGen signalGen(4000); 
+    SignalGen signalGen(sps); 
     if (!signalGen.GenerateOne(freq, amp, phase, sec)) 
     {
         exit(1);

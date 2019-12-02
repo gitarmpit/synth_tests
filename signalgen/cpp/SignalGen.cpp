@@ -102,17 +102,25 @@ bool SignalGen::Generate(int freq, const std::vector<float>& harmAmps, const std
     for (size_t nharm = 0; nharm < harmAmps.size(); ++nharm)
     {
         int f = freq * (nharm + 1);
-        if (f < _sps / 2 && f < 20000 && harmAmps[nharm] > 0.0001)
+        if (fabs(harmAmps[nharm]) < 0.00000001) 
+        {
+            fprintf(stderr, "skipping 0 harmonic: %d n=%d\n", f, nharm+1);
+        }
+        else if (f >= _sps/2) 
+        {
+            fprintf(stderr, "sps too low for freq: %d\n", f);
+        }
+        else if (f > 20000)
+        {
+            fprintf(stderr, "freq too high: %d\n", f);
+        }
+        else
         {
             float phase = phases[nharm];
             if (!GenerateOne(f, harmAmps[nharm], phase))
             {
                 return false;
             }
-        }
-        else
-        {
-            fprintf(stderr, "skipping high harmonic: %d\n", f);
         }
     }
 
@@ -123,8 +131,8 @@ bool SignalGen::GenerateOne(int freq, float amp, float& phase)
 {
     if (amp < 0)
     {
-        amp = -amp;
-        phase = -M_PI/2; // -90 degrees
+        //amp = -amp;
+        //phase = -M_PI/2; // -90 degrees
     }
 
     if (phase < 0) 
@@ -132,9 +140,9 @@ bool SignalGen::GenerateOne(int freq, float amp, float& phase)
        phase = 2*M_PI + phase;
     }
 
-    fprintf (stderr, "freq: %d, amp: %f, phase (deg): %f\n", freq, amp, phase*180/M_PI);
+    //fprintf (stderr, "freq: %d, amp: %f, phase (deg): %f\n", freq, amp, phase*180/M_PI);
     phase = table_size / (2*M_PI) * phase;
-    fprintf (stderr, "idx: %f\n", phase);
+    //fprintf (stderr, "idx: %f\n", phase);
     
     float phase_step = (float)freq / (float)_sps * (float)table_size;
     if ((int)phase_step > table_size / 2)

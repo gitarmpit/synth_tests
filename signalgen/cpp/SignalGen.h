@@ -8,7 +8,7 @@ class SignalGen
 {
 private:
     int _sps;
-    const int maxHarmonics = 100;
+    const int maxHarmonics = 1000;
     const int table_size = 1024;
     float* _table = new float[table_size];
     float* _out;

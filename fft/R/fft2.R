@@ -4,7 +4,7 @@
 
 t <- seq(0,1.2,1/1000)
 y1 = 100*cos(2*pi*100*t + pi/3) + 10*cos(2*pi*300*t + pi/8)
-Y1 <- fft(y1[0:1000]);
+Y1 <- fft(y1[0:1001]);
 a=abs(Y1)
 aa=a/length(a)*2
 amax=max(aa)
@@ -25,3 +25,5 @@ plot(Arg(Y1)[1:500], type="h")
 
 # write(Arg(Y1), sep="\n", file="Y1.Arg")
 #write(abs(Y1), sep="\n", file="Y1.abs")
+
+# plot(bartlett(n), type = "l", ylim = c(0,1))
