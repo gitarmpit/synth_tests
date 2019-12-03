@@ -116,7 +116,7 @@ int main(int argc, char**argv)
     if (sec < 0.1 || sec > 200)
     {
         fprintf(stderr, "sec must be in 0.1 to 200 sec range\n");
-        exit(1);
+        //exit(1);
     }
 
     std::vector<float> harms; 

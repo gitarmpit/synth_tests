@@ -150,7 +150,7 @@ int main(void)
       float a = 2/_T * calc_midpoint_rule (-_T/2, _T/2, 100000, afunc);
       float b = 2/_T * calc_midpoint_rule (-_T/2, _T/2, 100000, bfunc);
       //printf ("n: %d, a: %7.4f, b: %7.4f\n", _n, a, b);
-      //(fabs(a) > 0.00001) ?  printf ("%f\n", a) : (fabs(b) > 0.00001) ? printf ("%f,-90\n", b) : printf ("0\n");
+      (fabs(a) > 0.00001) ?  printf ("%f\n", a) : (fabs(b) > 0.00001) ? printf ("%f,-90\n", b) : printf ("0\n");
       float amp = sqrt(a*a + b*b);
       float phase = atan2(b, a)*180/M_PI;
       if (amp < 0.00001) 
