@@ -1,38 +1,38 @@
 #include "SignalGen.h" 
 #include <math.h>
 
-static double curvee(double x) 
+static float curvee(float x) 
 {
   return pow(fabs(fmod (fabs(x), M_PI*2) - M_PI), 2) / M_PI / M_PI * 2 - 1;
 }
 
-static double curvee2(double x) 
+static float curvee2(float x) 
 {
   return pow(fabs(fmod (fabs(x), M_PI*2) - M_PI), 0.5) / sqrt(M_PI) * 2 - 1;
 }
 
-static double triangle(double x)
+static float triangle(float x)
 {
    return fabs(fmod (fabs(x), M_PI*2) - M_PI) / M_PI * 2 - 1;
 }
 
-static double sawtooth (double x) 
+static float sawtooth (float x) 
 {
    return -(fabs(fmod (fabs(x), M_PI*2)) / M_PI - 1);
 }
 
-static double square (double x) 
+static float square (float x) 
 {
    return fabs (fmod (fabs(x), M_PI*2) < M_PI ? 1 : 0) - 0.5;
 }
 
-static double square2 (double x) 
+static float square2 (float x) 
 {
-   static const double scale = M_PI/10;
-   static double thr1 = M_PI - scale;
-   static double thr2 = 2*M_PI - scale;
+   static const float scale = M_PI/10;
+   static float thr1 = M_PI - scale;
+   static float thr2 = 2*M_PI - scale;
 
-   double phase = fmod (fabs(x), M_PI*2);
+   float phase = fmod (fabs(x), M_PI*2);
 
    if (phase >= thr1 && phase <= M_PI) 
    {
@@ -55,7 +55,7 @@ SignalGen::SignalGen(int sps)
     _sps = sps;
     for (int i = 0; i < table_size; ++i)
     {
-        _table[i] = (double)cos(2.0f * M_PI / (double)table_size * (double)i);
+        _table[i] = (float)cos(2.0f * M_PI / (float)table_size * (float)i);
     }
 }
 
@@ -64,7 +64,7 @@ SignalGen::~SignalGen()
     delete[] _out;
 }
 
-bool SignalGen::init (double duration_sec)
+bool SignalGen::init (float duration_sec)
 {
     _npoints = (int)(_sps * duration_sec);
     if (_npoints == 0) 
@@ -77,7 +77,7 @@ bool SignalGen::init (double duration_sec)
     {
         delete[] _out;
     }
-    _out = new double[_npoints];
+    _out = new float[_npoints];
     for (int i = 0; i < _npoints; ++i)
     {
         _out[i] = 0;
@@ -85,7 +85,7 @@ bool SignalGen::init (double duration_sec)
     return true;
 }
 
-bool SignalGen::GenerateOne(int freq, double amp, double& phase, double duration_sec)
+bool SignalGen::GenerateOne(int freq, float amp, float& phase, float duration_sec)
 {
     if (!init(duration_sec)) 
     {
@@ -94,7 +94,7 @@ bool SignalGen::GenerateOne(int freq, double amp, double& phase, double duration
     return GenerateOne(freq, amp, phase);
 }
 
-bool SignalGen::Generate(int freq, const std::vector<double>& harmAmps, const std::vector<double>& phases, double duration_sec)
+bool SignalGen::Generate(int freq, const std::vector<float>& harmAmps, const std::vector<float>& phases, float duration_sec)
 {
     if (!init(duration_sec)) 
     {
@@ -130,7 +130,7 @@ bool SignalGen::Generate(int freq, const std::vector<double>& harmAmps, const st
         }
         else
         {
-            double phase = phases[nharm];
+            float phase = phases[nharm];
             if (!GenerateOne(f, harmAmps[nharm], phase))
             {
                 return false;
@@ -141,7 +141,7 @@ bool SignalGen::Generate(int freq, const std::vector<double>& harmAmps, const st
     return true;
 }
 
-bool SignalGen::GenerateOne(int freq, double amp, double& phase)
+bool SignalGen::GenerateOne(int freq, float amp, float& phase)
 {
     if (phase < 0) 
     {
@@ -152,7 +152,7 @@ bool SignalGen::GenerateOne(int freq, double amp, double& phase)
     phase = table_size / (2*M_PI) * phase;
     //fprintf (stderr, "idx: %f\n", phase);
     
-    double phase_step = (double)freq / (double)_sps * (double)table_size;
+    float phase_step = (float)freq / (float)_sps * (float)table_size;
     if ((int)phase_step > table_size / 2)
     {
         fprintf(stderr, "error: phase_step too high: %f\n", phase_step);
@@ -161,37 +161,37 @@ bool SignalGen::GenerateOne(int freq, double amp, double& phase)
 
     //fprintf (stderr, "idx: %f\n", phase);
 
-    double val;
-    double max_err = 0;
+    float val;
+    float max_err = 0;
     for (int i = 0; i < _npoints; ++i)
     {
         int idx0 = (int)phase;
 
-        double v0 = _table[idx0]; 
+        float v0 = _table[idx0]; 
         int idx1 = idx0 + 1;
         if (idx1 > table_size - 1)
         {
            idx1 = 0;
         }
-        double v1 = _table[idx1];  
-        double frac = phase - (double)idx0;
+        float v1 = _table[idx1];  
+        float frac = phase - (float)idx0;
         val = v0 + (v1 - v0) * frac;
 
-        _out[i] += (val * (double)amp);
-        double t = (double)i / (double)_sps;
-        double v = amp * cos (2*M_PI*freq*t); 
-        //printf ("%.18g\n", v);
-        double err = fabs(v - _out[i]) / fabs(v);
-        if (fabs(v) > 0.00000000001 && err > max_err) 
+        _out[i] += (val * (float)amp);
+        float t = (float)i / (float)_sps;
+        float v = amp * cos (2*M_PI*freq*t); 
+        printf ("%f\n", v);
+        float err = fabs(v - _out[i]) / fabs(v);
+        if (err > max_err) 
         {
           max_err = err;
           //printf ("max err: %f, t:%f\n", max_err*100, t); 
         }
-        //printf ("t: %.18g, table: %.18g, actual: %.18g, phase: %f, err: %f, max err: %f\n", t, _out[i], v, phase, err*100, max_err*100);  
+        //printf ("t: %f, table: %f, actual: %f, phase: %f, err: %f, max err: %f\n", t, _out[i], v, phase, err*100, max_err*100);  
         phase += phase_step;
-        if (phase >= (double)table_size)
+        if (phase >= (float)table_size)
         {
-            phase -= (double)table_size;
+            phase -= (float)table_size;
         }
 
         if ((int)phase > table_size - 1)
