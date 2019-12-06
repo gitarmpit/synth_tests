@@ -43,6 +43,45 @@ float square_odd (float x)
    return m < M_PI ? 1 : -1;
 }
 
+float circle (float x) 
+{
+   float m = fmod(x+M_PI/2, M_PI*2);
+   if (m < 0) 
+     m += M_PI*2;
+
+   if (m > M_PI*2) 
+   {
+     m -= M_PI*2;
+   }
+    
+   float theta;
+
+   if (m <= M_PI)
+   {
+      theta = acos ((m-M_PI/2)/M_PI*2);
+   }
+   else
+   {
+      theta = -acos ((-M_PI+m-M_PI/2)/M_PI*2);
+   }  
+      
+   return sin(theta);
+
+}
+
+float sin_sc (float x) 
+{
+   float m = fmod(x, M_PI*2);
+   if (m < 0) 
+     m += M_PI*2;
+   
+   if (m > M_PI/4 && m < M_PI - M_PI/4) 
+   {
+        return 0.7*sin (m);
+   }
+
+   return sin(m);
+}
 
 float square2 (float x) 
 {
@@ -119,12 +158,13 @@ int main(void)
    int dur = 2;
    int n = sps * dur;
 
-   for (float i = -360*2; i <= 360*2; i += 10) 
+   for (float i = -360*1; i <= 360*1; i += 2) 
    {
-      //printf ("%f, %f\n", i, square_odd(M_PI*(float)i/180.0f));
+      //printf ("%f, %f\n", i, circle(M_PI*(float)i/180.0f));
+      printf ("%f\n", sin_sc(M_PI*(float)i/180.0f));
    }
 
-   //exit(1);
+   exit(1);
    
    /*
    for (int i = 0; i < n; ++i) 
@@ -137,20 +177,20 @@ int main(void)
    exit(1);
    */
 
-   _fptr = square_odd;
+   _fptr = circle;
    _T = 2*M_PI;
    float c = calc_midpoint_rule (0, _T, 1000, _fptr);
 
    //printf ("c: %f\n", c);
    
-   const int sz = 20;
+   const int sz = 50;
    //float a[sz], b[sz];
    for (_n = 1; _n < sz; ++_n) 
    {
       float a = 2/_T * calc_midpoint_rule (-_T/2, _T/2, 100000, afunc);
       float b = 2/_T * calc_midpoint_rule (-_T/2, _T/2, 100000, bfunc);
       //printf ("n: %d, a: %7.4f, b: %7.4f\n", _n, a, b);
-      (fabs(a) > 0.00001) ?  printf ("%f\n", a) : (fabs(b) > 0.00001) ? printf ("%f,-90\n", b) : printf ("0\n");
+      //(fabs(a) > 0.00001) ?  printf ("%f\n", a) : (fabs(b) > 0.00001) ? printf ("%f,-90\n", b) : printf ("0\n");
       float amp = sqrt(a*a + b*b);
       float phase = atan2(b, a)*180/M_PI;
       if (amp < 0.00001) 
@@ -163,7 +203,7 @@ int main(void)
          phase = 0; 
          amp = -amp;
       }
-      //printf ("%f,%f\n", amp, phase);
+      printf ("%f,%f\n", amp, phase);
    }
 
    //Another way to get coefficients

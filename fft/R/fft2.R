@@ -7,21 +7,26 @@
 y3=scan(file = f, what = double())
 
 d=read.csv(file = f, header = F, sep = ",")[ ,2]
-y2=as.double(d)
+y3=as.double(d)
 
 
-t <- seq(0,0.9999,1/10000)
+t <- seq(0,0.9999,1/1000)
 y1 = 100*cos(2*pi*100*t)
 [995]  -80.9017 -100.0000  -80.9017  -30.9017   30.9017   80.9017  100.0000
 
 
 y1 = 100*cos(2*pi*100*t + pi/3) + 10*cos(2*pi*300*t + pi/8)
+
+y3=scan(file = f, what = double())
 Y1 <- fft(y3)
 a=abs(Y1)
 aa=a/length(a)*2
 amax=max(aa)
 anorm <- 10*log10(aa/amax)
-plot(anorm[1:300], type="h")
+plot(anorm[1:300], type="l")
+sqrt(sum(aa[102:5000]^2))/aa[102]
+
+
 plot(abs(Y1), type="h")
 
 for (i in 1:length(anorm)) 

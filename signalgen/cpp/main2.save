@@ -13,11 +13,11 @@ int main(int argc, char**argv)
 {
     int c;
     int sps = 0;
-    int freq = -1;
-    double amp = 1;
-    double phase = 0;
-    double sec = 0;
-    double step = -1;
+    int freq = 0;
+    float amp = 1;
+    float phase = 0;
+    float sec = 0;
+    float step = -1;
 
     while ((c = getopt (argc, argv, "S:s:a:f:p:d:")) != -1)
     {
@@ -59,7 +59,7 @@ int main(int argc, char**argv)
       exit(1);
     }
 
-    if (freq < 0) 
+    if (freq == 0) 
     {
       fprintf (stderr, "freq not set\n");
       exit(1);
@@ -81,13 +81,13 @@ int main(int argc, char**argv)
     {
         exit(1);
     }
-    double* res;
+    float* res;
     int size = 0;
     signalGen.Get(size, res);
 
     for (int i = 0; i < size; ++i)
     {
-        printf("%.18g\n", res[i]);
+        //printf("%f\n", res[i]);
     }
 
 }
