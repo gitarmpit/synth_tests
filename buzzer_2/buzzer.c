@@ -256,7 +256,7 @@ BOOL convert_tune(const char* tune, int* size, int** freqs, float** durations)
 
             if (duroff_ms != 0)
             {
-                add_to_output (-freq, duroff_ms, _size++);
+                add_to_output (0, duroff_ms, _size++);
             }
         }
         else

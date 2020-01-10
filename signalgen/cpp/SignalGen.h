@@ -12,17 +12,19 @@ private:
     const int table_size = 1000;
     double* _table = new double[table_size];
     double* _out;
-    int _npoints;
+    int _nsamples;
     bool GenerateOne(int freq, double amp, double& phase);
 
     bool init (double duration_sec);
 
+    void ApplyEnvelope(double amp);
+
 
 public:
-    SignalGen(int sps);
+    SignalGen(int sps, int shape = 0);
     bool Generate(int freq, const std::vector<double>& harmAmps, const std::vector<double>& phases, double duration_sec);
     bool GenerateOne(int freq, double amp, double& phase, double duration_sec);
-    void Get(int& count, double*& out) const { count = _npoints; out = _out; }
+    void Get(int& count, double*& out) const { count = _nsamples; out = _out; }
     ~SignalGen();
 };
 

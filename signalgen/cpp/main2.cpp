@@ -76,7 +76,7 @@ int main(int argc, char**argv)
     fprintf (stderr, "freq: %d, phase: %f, amp: %f, sps: %d, sec: %f\n", 
              freq, phase, amp, sps, sec);
     
-    SignalGen signalGen(sps); 
+    SignalGen signalGen(sps, true); 
     if (!signalGen.GenerateOne(freq, amp, phase, sec)) 
     {
         exit(1);
@@ -87,7 +87,7 @@ int main(int argc, char**argv)
 
     for (int i = 0; i < size; ++i)
     {
-        printf("%.18g\n", res[i]);
+        printf("%d, %f\n", i, res[i]);
     }
 
 }
