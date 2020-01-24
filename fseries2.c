@@ -98,7 +98,7 @@ float calc_midpoint_rule(float a, float b, float n, float(*f)(float) )
 
 float _T;
 float(*_fptr)(float);
-int _n;
+float _n;
 
 float afunc (float x) 
 {
@@ -137,7 +137,7 @@ int main(void)
    exit(1);
    */
 
-   _fptr = square_odd;
+   _fptr = square;
    _T = 2*M_PI;
    float c = calc_midpoint_rule (0, _T, 1000, _fptr);
 
@@ -145,25 +145,28 @@ int main(void)
    
    const int sz = 20;
    //float a[sz], b[sz];
-   for (_n = 1; _n < sz; ++_n) 
+   float nstep = 1;
+   for (_n = 1; _n < 20; _n += nstep) 
    {
       float a = 2/_T * calc_midpoint_rule (-_T/2, _T/2, 100000, afunc);
       float b = 2/_T * calc_midpoint_rule (-_T/2, _T/2, 100000, bfunc);
       //printf ("n: %d, a: %7.4f, b: %7.4f\n", _n, a, b);
-      (fabs(a) > 0.00001) ?  printf ("%f\n", a) : (fabs(b) > 0.00001) ? printf ("%f,-90\n", b) : printf ("0\n");
+      // (fabs(a) > 0.00001) ?  printf ("%f\n", a) : (fabs(b) > 0.00001) ? printf ("%f,-90\n", b) : printf ("0\n");
       float amp = sqrt(a*a + b*b);
       float phase = atan2(b, a)*180/M_PI;
       if (amp < 0.00001) 
       {
-         amp = 0; 
-         phase = 0;
+         //amp = 0; 
+         //phase = 0;
       }
       if (fabs(fabs(phase) - 180) < 0.01) 
       {
-         phase = 0; 
-         amp = -amp;
+         //phase = 0; 
+         //amp = -amp;
       }
-      //printf ("%f,%f\n", amp, phase);
+      // printf ("%f,%f\n", amp, phase);
+      printf ("%f,%f\n", _n, a);
+     
    }
 
    //Another way to get coefficients
