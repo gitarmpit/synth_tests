@@ -1,6 +1,10 @@
+Debug/
+Release/
 .settings/
 *.exe
 *.o
 *.obj
+*.wav
+
 
 
