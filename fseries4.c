@@ -29,7 +29,7 @@ double square (double x)
 
 double square2 (double x) 
 {
-   static const double scale = M_PI/10;
+   static const double scale = M_PI/4;
    static double thr1 = M_PI - scale;
    static double thr2 = 2*M_PI - scale;
 
@@ -82,27 +82,26 @@ double calc_simps (double a, double b, double(*f)(double))
     return dx/6 * result3;
 }
 
-double _T;
+double _T,  _n;
 double(*_fptr)(double);
-double _n;
 
 double afunc (double x) 
 {
-  return _fptr(x)*cos(2*M_PI*1/_T*_n*x);
+  return _fptr(x)*cos(2*M_PI/_T*_n*x);
 }
 
 double bfunc (double x) 
 {
-  return _fptr(x)*sin(2*M_PI*1/_T*_n*x);
+  return _fptr(x)*sin(2*M_PI/_T*_n*x);
 }
 
 
 int main(void) 
 {
    _T = 2*M_PI;
-   _fptr = square;
+   _fptr = triangle;
    double nstep = .1;
-   for (_n = -20; _n < 20; _n += nstep) 
+   for (_n = -6; _n < 6; _n += nstep) 
    {
       float a = 2/_T * calc_simps (-_T/2, _T/2, afunc);
       float b = 2/_T * calc_simps (-_T/2, _T/2, bfunc);
@@ -118,8 +117,9 @@ int main(void)
          //phase = 0; 
          //amp = -amp;
       }
-      // printf ("%f,%f\n", amp, phase);
-       printf ("%f,%f\n", _n, a);
+      //printf ("%f,%f\n", amp, phase);
+      //printf ("%f,%f\n", _n, 10*log(amp));
+      printf ("%f,%f\n", _n, a);
      
    }
 

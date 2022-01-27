@@ -121,10 +121,10 @@ int main(void)
 
    for (float i = -360*2; i <= 360*2; i += 10) 
    {
-      //printf ("%f, %f\n", i, square_odd(M_PI*(float)i/180.0f));
+      printf ("%f, %f\n", i, triangle(M_PI*(float)i/180.0f));
    }
 
-   //exit(1);
+   exit(1);
    
    /*
    for (int i = 0; i < n; ++i) 
@@ -137,7 +137,7 @@ int main(void)
    exit(1);
    */
 
-   _fptr = square;
+   _fptr = triangle;
    _T = 2*M_PI;
    float c = calc_midpoint_rule (0, _T, 1000, _fptr);
 
@@ -145,8 +145,8 @@ int main(void)
    
    const int sz = 20;
    //float a[sz], b[sz];
-   float nstep = 1;
-   for (_n = 1; _n < 20; _n += nstep) 
+   float nstep = .1;
+   for (_n = -20; _n < 20; _n += nstep) 
    {
       float a = 2/_T * calc_midpoint_rule (-_T/2, _T/2, 100000, afunc);
       float b = 2/_T * calc_midpoint_rule (-_T/2, _T/2, 100000, bfunc);

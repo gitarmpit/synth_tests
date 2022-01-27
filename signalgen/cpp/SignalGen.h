@@ -13,6 +13,8 @@ private:
     double* _table = new double[table_size];
     double* _out;
     int _nsamples;
+    double _maxAmp; 
+
     bool GenerateOne(int freq, double amp, double& phase);
 
     bool init (double duration_sec);

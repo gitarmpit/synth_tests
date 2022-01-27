@@ -3,7 +3,7 @@ call cl_paths.bat
 
 set OPTS=/GS /TP /W3 /Zc:wchar_t /I".." ^
   /Gm- /O2 /Ob2  /Zc:inline /fp:precise /D "WIN32" /D "_WINDOWS" /D "NDEBUG" /D "_MBCS" ^
-  /errorReport:prompt /WX- /Zc:forScope /GR /Gd /MD /EHsc /nologo /diagnostics:column 
+  /WX- /Zc:forScope /GR /Gd /MD /EHsc /nologo /diagnostics:column 
 
 cl.exe -c %OPTS% %1.cpp
 

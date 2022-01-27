@@ -1,6 +1,6 @@
 @echo off
 
-set VS_VER=14.21.27702
+set VS_VER=14.25.28610
 SET VS_BASE=C:\Program Files (x86)\Microsoft Visual Studio\2019
 SET VS_TOOLS_HOME=%VS_BASE%\Community\VC\Tools\MSVC\%VS_VER%
 

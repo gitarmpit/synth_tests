@@ -1,6 +1,12 @@
+*
+!*/
+!*.*
 Debug/
 Release/
 .settings/
+.vs/
+bin/
+obj/
 *.exe
 *.o
 *.obj

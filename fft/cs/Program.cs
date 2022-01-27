@@ -146,7 +146,7 @@ namespace FftSharp
             // Then BlackMan then Hann them Hamming is really wide
             fft.Run(WinFunc.eWinFuncBlackmanHarris, (float) sps, window_size, npoints, wav);
             fft.Dump(minDb);
-            // fft.CalculateView(500, 400, true);
+            fft.CalculateView(500, 400, true);
         }
     }
 }
