@@ -30,7 +30,7 @@ int main(int argc, char**argv)
        p += dx; 
     }
 
-    //dx/6
+    //res * dx / 6
 
     printf ("res: %f\n", cabs(res) * dx / 6);
 

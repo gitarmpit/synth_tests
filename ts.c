@@ -2,6 +2,8 @@
 #include <stdio.h> 
 #include <stdlib.h>
 
+// Taylor series
+
 static double fact[] = {1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880,  3628800 };
 static double c_vals[] = { 1, 0, -1, 0, 1, 0, -1, 0, 1, 0, -1 };
 

@@ -8,6 +8,7 @@ double f2(double x)
     return x*x*x/14 -x*x/2 +x/2+0.5;
 }
 
+//taylor series
 double f(double x) 
 {
     return 70+60*x+40*pow(x,2)-6*pow(x,3)+7*pow(x,4)-4*pow(x,5)-8*pow(x,6)-9*pow(x,7)-4*pow(x,8)+2.44*pow(x,9)+1.2*pow(x,10);
